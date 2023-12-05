@@ -1,20 +1,42 @@
 <html>
     <head>
+        <style>
+            #blocker{
+                height:600; 
+                width: 600; 
+                position:absolute;
+                background-color: rgba(0,0,0,0.5);
+            }
+            #blockerText{
+                height:600; 
+                width: 600;
 
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+
+                color:white;
+
+				text-align: center;
+				font-size: 14px;
+				cursor: pointer;
+            }
+        </style>
     </head>
     <body>
-        <canvas id="canvas" height="600" width="600"></canvas>
-        <div style="height:600; width: 600; position:absolute">
-            <div>
-                <button></button>
+        <div id="blocker">
+            <div id="blockerText">
+                <p>Paused</p>
             </div>
         </div>
+        <canvas id="canvas" height="600" width="600"></canvas>
     </body>
     <script type="importmap">
         {
           "imports": {
-            "three": "https://unpkg.com/three@0.152.2/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.152.2/examples/jsm/"
+            "three": "https://unpkg.com/three@0.159/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.159/examples/jsm/"
           }
         }
     </script>

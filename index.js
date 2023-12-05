@@ -1,15 +1,27 @@
 import * as THREE from 'three';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 const frameRate = 60
 
+let movingForward = false
+let movingBackward = false
+let movingLeft = false
+let movingRight = false
 
-export const scene = new THREE.Scene()
+const vel = new THREE.Vector3()
+const direction = new THREE.Vector3()
+const vertex = new THREE.Vector3()
+const color = new THREE.Color()
+
+const objects = []
+
+let scene = new THREE.Scene()
 const canvas = document.getElementById("canvas")
-const renderer = new THREE.WebGLRenderer({
+let renderer = new THREE.WebGLRenderer({
     canvas,
     // alpha: true,
     // antialias:true
 });
-const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 100) // perspective camera
+let camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 100) // perspective camera
 
 camera.position.x = 3
 camera.lookAt(0,0,0)
@@ -19,6 +31,29 @@ const boxGeo = new THREE.BoxGeometry(1, 1, 1)
 const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
 const box = new THREE.Mesh(boxGeo, boxMat)
 scene.add(box)
+
+let controls = new PointerLockControls(camera, document.body)
+
+const blocker = document.getElementById("blocker")
+const blockerText = document.getElementById("blockerText")
+
+blockerText.addEventListener("click", () => {
+    controls.lock()
+})
+
+controls.addEventListener('lock', () => {
+    blocker.style.display = "none"
+    blockerText.style.display = "none"
+})
+controls.addEventListener("unlock", () => {
+    blocker.style.display = "block"
+    blockerText.style.display = ""
+})
+
+scene.add(controls.getObject())
+
+let raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10)
+
 
 renderer.render(scene, camera)
 
@@ -32,8 +67,12 @@ function render(time){
     }
     // render loop
 
-    camera.position.x += vx
-    camera.position.z += vz
+    if(controls.isLocked === true){
+
+        move()
+
+
+    }
 
 
 
@@ -53,57 +92,60 @@ render()
 
 // logic
 
-const runSpeed = 2
+const runSpeed = 0.2
 const accel = 0.2
+
+function move(){
+    if(movingForward){
+        controls.moveForward(runSpeed)
+    }
+    if(movingBackward){
+        controls.moveForward(-runSpeed)
+    }
+    if(movingLeft){
+        controls.moveRight(-runSpeed)
+    }
+    if(movingRight){
+        controls.moveRight(runSpeed)
+    }
+}
 
 document.addEventListener("keydown", (event) => {
     event.isComposing ? console.log("composing") : ""
     const key = event.key
-    console.log(key)
-    if(key === "Escape"){
-        
-    }
-
+    console.log(event.key)
     switch (key.toLowerCase()) {
         case 'w':
-            if (vx < runSpeed){
-                vx += accel
-            } else vx = runSpeed
+            movingForward = true
             break;
         case 'a':
-            if (vz > -runSpeed){
-                vz -= accel
-            } else vz = -runSpeed
+            movingLeft = true
             break
         case 's':
-            if (vx > -runSpeed){
-                vx -= accel
-            } else vx = -runSpeed
+            movingBackward = true
             break
         case 'd':
-            if (vz < runSpeed){
-                vz += accel
-            } else vz = runSpeed
+            movingRight = true
             break;
-    }   
+    } 
 })
 
 document.addEventListener("keyup", (event) => {
     event.isComposing ? console.log("composing") : ""
     const key = event.key
-    console.log(key)
+    // console.log(key)
     switch (key.toLowerCase()) {
         case 'w':
-            vx -= vx
+            movingForward = false
             break;
         case 'a':
-            vz -= vz
-            break;
+            movingLeft = false
+            break
         case 's':
-            vx -= vx
-            break;
+            movingBackward = false
+            break
         case 'd':
-            vz -= vz
+            movingRight = false
             break;
-    }  
+    } 
 })
