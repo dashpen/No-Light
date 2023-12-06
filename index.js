@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 const frameRate = 60
 
-const startingCameraHeight = 10
+const startingCameraHeight = 2
+const startingRunSpeed = 0.1
 
 let movingForward = false
 let movingBackward = false
@@ -107,7 +108,7 @@ render()
 
 // logic
 
-const runSpeed = 0.1
+let runSpeed = startingRunSpeed
 const accel = 0.2
 
 function move(){
@@ -125,6 +126,8 @@ function move(){
     }
 }
 
+// key stuff
+
 document.addEventListener("keydown", (event) => {
     event.isComposing ? console.log("composing") : ""
     const key = event.key
@@ -141,6 +144,9 @@ document.addEventListener("keydown", (event) => {
             break
         case 'd':
             movingRight = true
+            break;
+        case 'shift':
+            enterSneak()
             break;
     } 
 })
@@ -162,5 +168,20 @@ document.addEventListener("keyup", (event) => {
         case 'd':
             movingRight = false
             break;
+        case 'shift':
+            exitSneak()
+            break;
+        case 'y':
+            console.log(runSpeed, movingForward, movingLeft)
     } 
 })
+
+function enterSneak(){
+    camera.position.y = startingCameraHeight / 2
+    runSpeed = startingRunSpeed/4
+}
+
+function exitSneak(){
+    camera.position.y = startingCameraHeight
+    runSpeed = startingRunSpeed
+}
