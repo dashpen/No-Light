@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const frameRate = 60
 
-const startingCameraHeight = 2
-const startingRunSpeed = 0.1
+const startingCameraHeight = 1.5
+const startingRunSpeed = 0.05
 
 let movingForward = false
 let movingBackward = false
@@ -26,14 +27,13 @@ let renderer = new THREE.WebGLRenderer({
 });
 let camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 100) // perspective camera
 
-camera.position.x = 3
 camera.position.y = startingCameraHeight
 
 camera.lookAt(0,0,0)
 scene.add(camera)
 
 const floorGeo = new THREE.PlaneGeometry(1000, 1000)
-const floorMat = new THREE.MeshBasicMaterial({color: 0x808080})
+const floorMat = new THREE.MeshPhongMaterial({color: 0x808080})
 const floor = new THREE.Mesh(floorGeo, floorMat)
 
 floor.rotateX(-Math.PI/2)
@@ -44,9 +44,10 @@ const boxGeo = new THREE.BoxGeometry(1, 1, 1)
 const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
 const box = new THREE.Mesh(boxGeo, boxMat)
 
-box.position.y = 1
+box.position.y = 0.5
+box.position.z = 2
 
-scene.add(box)
+// scene.add(box)
 
 let controls = new PointerLockControls(camera, document.body)
 
@@ -68,10 +69,73 @@ controls.addEventListener("unlock", () => {
 
 scene.add(controls.getObject())
 
-let raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10)
+const ambientLight = new THREE.AmbientLight(0xffffff)
+
+scene.add(ambientLight)
+
+
+const loader = new GLTFLoader()
+
+let paperclipMesh = new THREE.Mesh()
+
+const numModels = 3
+
+const loadedObjs = []
+let loaded = 0
+
+function loadModel(name){
+    loader.load(`models/${name}.glb`, (gltf) => {
+        scene.add(gltf.scene)
+        // console.log(gltf.scene)
+        loadedObjs.push(gltf.scene)
+        loaded++
+        if(loaded === 3){
+            init()
+        }
+    },
+    (xhr) => {
+        console.log(( xhr.loaded / xhr.total * 100 ) + '% loaded');
+
+    },
+    function (error) {
+        console.log( 'An error happened' + error);
+    }
+    )
+}
+
+loadModel('pliers')
+loadModel('paperclip')
+loadModel('roomproto')
+
+// console.log(scene)
 
 
 renderer.render(scene, camera)
+
+function init(){
+    console.log("pliers: ")
+    const pliers = loadedObjs[0].children[0] 
+    const paperclip = loadedObjs[1].children[0] 
+    const room = loadedObjs[2]
+
+    console.log(room)
+
+
+
+    // for(let i = 0; i < room.children.length; i++){
+    //     const child = room.children[i]
+    //     child.material = new THREE.MeshPhongMaterial({color: 0x666666})
+    //     console.log(child)
+    // }
+
+    // room.children.forEach((child) => {
+    //     // child.Mesh = THREE.Mesh()
+    //     console.log(room)
+    // })
+
+    render()
+}
+
 
 let time2
 let start
@@ -86,7 +150,6 @@ function render(time){
     if(controls.isLocked === true){
 
         move()
-
 
     }
 
@@ -104,7 +167,6 @@ function render(time){
     setTimeout(requestAnimationFrame, 1000/frameRate - elapsed, render)
 }
 
-render()
 
 // logic
 
@@ -171,8 +233,8 @@ document.addEventListener("keyup", (event) => {
         case 'shift':
             exitSneak()
             break;
-        case 'y':
-            console.log(runSpeed, movingForward, movingLeft)
+        case 'f':
+            console.log(camera.position)
     } 
 })
 
