@@ -3,7 +3,7 @@ import { PointerLockControls } from 'three/addons/controls/PointerLockControls.j
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const frameRate = 60
 
-const startingCameraHeight = 1.5
+const startingCameraHeight = 1.6
 const startingRunSpeed = 0.05
 
 let movingForward = false
@@ -109,9 +109,36 @@ loadModel('pliers')
 loadModel('paperclip')
 loadModel('roomproto')
 
-// console.log(scene)
+/* corners : 
+    x: 0.28  z: -1.15
+    x: -1.54 z: -1.15
+    x: -1.54 z: -1.9
+    x: 0.28  z: -1.9
+*/
 
+function placeObject(object, height){
 
+    const xRange = 0.28 + 1.54
+    const zRange = 1.9 - 1.15
+
+    const xShift = Math.random() * xRange
+    const zShift = Math.random() * zRange
+
+    const finalx = 0.28 - xShift
+    const finaly = 0.7726
+    const finalz = -1.15 - zShift
+
+    object.position.set(finalx, finaly + height/2, finalz)
+
+    const rotation = Math.random() * Math.PI
+
+    if(height === 0.011315741299757653){
+        object.rotateY(rotation)
+    } else {
+        object.rotateZ(rotation)
+    }
+
+}
 
 function raycast(){
     raycaster.setFromCamera({x: 0, y: 0}, camera)
@@ -119,7 +146,7 @@ function raycast(){
     if(intersectedObjects){
         console.log(intersectedObjects)
         const position = intersectedObjects[0].point
-        // intersectedObjects[0].object.material.color.set(0xffffff)
+        // intersectedObjects[0].object.material.color.set(0x000000)
         // setTimeout(() => {}, 100)
         box.position.set(position.x, position.y, position.z)
         console.log(box.position)
@@ -130,12 +157,18 @@ function raycast(){
 renderer.render(scene, camera)
 
 function init(){
-    console.log("pliers: ")
     const pliers = loadedObjs[0].children[0] 
     const paperclip = loadedObjs[1].children[0] 
     const room = loadedObjs[2]
 
-    console.log(room)
+    paperclip.scale.x *= 2
+    paperclip.scale.y *= 2
+    paperclip.scale.z *= 2
+
+    placeObject(pliers, 0.011315741299757653)
+    placeObject(paperclip, 0.0050254474666067805)
+
+    console.log(paperclip)
 
 
 
