@@ -208,17 +208,37 @@ function move(){
     const cameraLength = 0.5
 
     const position = camera.position
-
+    // walls
     if(position.x > 1.7){
-        camera.position.x = 1.7
+        position.x = 1.7
     }
+    if(position.x < -1.7){
+        position.x = -1.7
+    }
+    if(position.z > 2.05){
+        position.z = 2.05
+    }
+    // wall with door
     if(position.x > 1.45 && position.z < -2.05){
-        camera.position.z = -2.05
+        position.z = -2.05
     }
-    if(position.z < -1 && position.x > 0.4 && position.x < 0.45){
-        camera.position.x = 0.45
+    if(position.x < 0.56 && position.z < -2.05){
+        position.z = -2.05
     }
-    // if(position.x)
+    // table
+    if(position.z < -1 && position.x > 0.35 && position.x < 0.45){
+        position.x = 0.45
+    }
+    if(position.x < 0.45 && position.z < -1 && position.z > -1.2){
+        position.z = -1
+    }
+    // bed
+    if(position.z > 0.98 && position.x > -0.8 && position.x < -0.7){
+        position.x = -0.8
+    }
+    if(position.x > -0.8 && position.z > 0.98 && position.z < 1.08){
+        position.z = 0.98
+    }
 }
 
 // key stuff
