@@ -40,14 +40,14 @@ floor.rotateX(-Math.PI/2)
 
 scene.add(floor)
 
-const boxGeo = new THREE.BoxGeometry(1, 1, 1)
+const boxGeo = new THREE.BoxGeometry(0.01, 0.01, 0.01)
 const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
 const box = new THREE.Mesh(boxGeo, boxMat)
 
 box.position.y = 0.5
 box.position.z = 2
 
-// scene.add(box)
+scene.add(box)
 
 let controls = new PointerLockControls(camera, document.body)
 
@@ -72,6 +72,8 @@ scene.add(controls.getObject())
 const ambientLight = new THREE.AmbientLight(0xffffff)
 
 scene.add(ambientLight)
+
+const raycaster = new THREE.Raycaster()
 
 
 const loader = new GLTFLoader()
@@ -109,6 +111,21 @@ loadModel('roomproto')
 
 // console.log(scene)
 
+
+
+function raycast(){
+    raycaster.setFromCamera({x: 0, y: 0}, camera)
+    const intersectedObjects = raycaster.intersectObject(scene)
+    if(intersectedObjects){
+        console.log(intersectedObjects)
+        const position = intersectedObjects[0].point
+        // intersectedObjects[0].object.material.color.set(0xffffff)
+        // setTimeout(() => {}, 100)
+        box.position.set(position.x, position.y, position.z)
+        console.log(box.position)
+        console.log(position)
+    }
+}
 
 renderer.render(scene, camera)
 
@@ -186,6 +203,22 @@ function move(){
     if(movingRight){
         controls.moveRight(runSpeed)
     }
+
+    const cameraWidth = 0.5
+    const cameraLength = 0.5
+
+    const position = camera.position
+
+    if(position.x > 1.7){
+        camera.position.x = 1.7
+    }
+    if(position.x > 1.45 && position.z < -2.05){
+        camera.position.z = -2.05
+    }
+    if(position.z < -1 && position.x > 0.4 && position.x < 0.45){
+        camera.position.x = 0.45
+    }
+    // if(position.x)
 }
 
 // key stuff
@@ -235,6 +268,10 @@ document.addEventListener("keyup", (event) => {
             break;
         case 'f':
             console.log(camera.position)
+            break;
+        case 'g':
+            raycast()
+            break;
     } 
 })
 
