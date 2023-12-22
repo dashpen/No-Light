@@ -275,16 +275,30 @@ function unlockDoor(){
 }
 
 const winscreen = document.getElementById("winscreen")
+const timerText = document.getElementById("time")
 
 let hasWon = false
+let bestTime
+let sessionTime
+let startTime = 0
 function win(){
     // controls.unlock()
     hasWon = true
+    sessionTime = (Date.now() - startTime)/1000
     document.exitPointerLock()
+    if(bestTime){
+        if(sessionTime < bestTime){
+            bestTime = sessionTime
+        }
+    } else {
+        bestTime = sessionTime
+    }
+    timerText.innerHTML = `Your time was ${sessionTime} seconds and your best time this session was ${bestTime} seconds`
     // blockerText.style.display = "none"
     // winscreen.style.display = 'block'
 
 }
+
 
 winscreen.onclick = () => {
     inventory = []
@@ -310,6 +324,9 @@ winscreen.onclick = () => {
     camera.lookAt(0, startingCameraHeight, -1)
 
     controls.lock()
+
+
+    startTime = Date.now()
 
     render()
 }
@@ -355,7 +372,7 @@ function init(){
     //     // child.Mesh = THREE.Mesh()
     //     console.log(room)
     // })
-
+    startTime = Date.now()
     render()
 }
 
