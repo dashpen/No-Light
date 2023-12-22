@@ -25,7 +25,7 @@ let renderer = new THREE.WebGLRenderer({
     // alpha: true,
     // antialias:true
 });
-let camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 100) // perspective camera
+let camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.05, 100) // perspective camera
 
 camera.position.y = startingCameraHeight
 
@@ -119,6 +119,9 @@ loadModel('roomproto')
     x: 0.28  z: -1.9
 */
 
+let paperclipRotation
+let pliersRotation
+
 function placeObject(object, height){
 
     const xRange = 0.28 + 1.54
@@ -137,8 +140,10 @@ function placeObject(object, height){
 
     if(height === 0.011315741299757653){
         object.rotateY(rotation)
+        pliersRotation = rotation
     } else {
         object.rotateZ(rotation)
+        paperclipRotation = rotation
     }
 
 }
@@ -157,18 +162,14 @@ function raycastTesting(){
     }
 }
 
-let paperclipuuid
-let pliersuuid
-
 function raycastItem(){
     raycaster.setFromCamera({x: 0, y: 0}, camera)
     const intersectedObjects = raycaster.intersectObject(scene)
     if(intersectedObjects){
         const firstObject = intersectedObjects[0].object
-        console.log(firstObject)
-        if(firstObject.uuid == paperclipuuid){
+        if(firstObject.uuid == paperclip.uuid){
             pickupPaperclip()
-        } else if(firstObject.uuid == pliersuuid){
+        } else if(firstObject.uuid == pliers.uuid){
             pickupPliers()
         }
     }
@@ -176,24 +177,47 @@ function raycastItem(){
 
 function pickupPaperclip(){
     console.log("You picked up the paperclip!")
+    camera.add(paperclip)
+    paperclip.position.set(0, 0, 0)
+    paperclip.rotateZ(-paperclipRotation)
+    paperclip.rotateZ(Math.PI/2)
+    paperclip.rotateY(-Math.PI/2)
+    paperclip.position.z += -0.1
+    paperclip.position.x += -0.05
+    paperclip.position.y += -0.05
+    paperclip.rotateY(0.3)
+    inventory.push(paperclip)
 }
 
 function pickupPliers(){
     console.log("You picked up the pliers!")
+    camera.add(pliers)
+    pliers.position.set(0, 0, 0)
+    pliers.rotateY(-pliersRotation)
+    pliers.rotateY(Math.PI/2)
+    pliers.rotateZ(Math.PI/2)
+    pliers.position.z += -0.1
+    pliers.position.x += 0.05
+    pliers.position.y += -0.1
+    pliers.rotateZ(-0.3)
+    inventory.push(pliers)
+    console.log(inventory)
 }
 
 renderer.render(scene, camera)
 
+let pliers
+let paperclip
+let room
+
+let inventory = []
+
 function init(){
-    const pliers = loadedObjs[0].children[0] 
-    const paperclip = loadedObjs[1].children[0] 
-    const room = loadedObjs[2]
+    pliers = loadedObjs[0].children[0] 
+    paperclip = loadedObjs[1].children[0] 
+    room = loadedObjs[2]
 
-    pliersuuid = pliers.uuid
-    paperclipuuid = paperclip.uuid
-
-    // console.log(pliersuuid)
-    // console.log(paperclip)
+    paperclip.material = pliers.material
 
     paperclip.scale.x *= 2
     paperclip.scale.y *= 2
@@ -373,7 +397,7 @@ function exitSneak(){
     runSpeed = startingRunSpeed
 }
 
-// crosshair code
+// crosshair creation code
 let ctx = crosshair.getContext("2d")
 ctx.fillStyle = 'white'
 ctx.beginPath()
