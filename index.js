@@ -123,7 +123,9 @@ loadModel('door')
 let paperclipRotation
 let pliersRotation
 
-function placeObject(object, height){
+function placeObject(object){
+
+    const height = (object == pliers) ? 0.011315741299757653 : 0.0050254474666067805
 
     const xRange = 0.28 + 1.54
     const zRange = 1.9 - 1.15
@@ -224,8 +226,8 @@ function init(){
     paperclip.scale.y *= 2
     paperclip.scale.z *= 2
 
-    placeObject(pliers, 0.011315741299757653)
-    placeObject(paperclip, 0.0050254474666067805)
+    placeObject(pliers)
+    placeObject(paperclip)
 
 
 
