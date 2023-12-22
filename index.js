@@ -255,11 +255,28 @@ function craft(){
     }
 }
 
+function unlockDoor(){
+    if(hasLockPick){
+        raycaster.setFromCamera({x: 0, y: 0}, camera)
+        const intersectedObjects = raycaster.intersectObject(scene)
+        if(intersectedObjects){
+            const obj = intersectedObjects[0].object
+            if(obj == door.children[0] || obj == door.children[1] || obj == door.children[2]){
+                if(camera.position.z < -1 && lightBolts.length > 0){
+                    scene.remove(door)
+                    hasLockPick = false
+                }
+            }
+        }
+    }
+}
+
 renderer.render(scene, camera)
 
 let pliers
 let paperclip
 let room
+let door
 
 let inventory = []
 let hasLockPick = false
@@ -337,6 +354,26 @@ function render(time){
         lockpickHelp.style.display = 'block'
     } else {
         lockpickHelp.style.display = 'none'
+    }
+
+    if(hasLockPick){
+        raycaster.setFromCamera({x: 0, y: 0}, camera)
+        const intersectedObjects = raycaster.intersectObject(scene)
+        if(intersectedObjects){
+            const obj = intersectedObjects[0].object
+            if(obj == door.children[0] || obj == door.children[1] || obj == door.children[2]){
+                console.log(" HAPP Y")
+                if(camera.position.z < -1 && lightBolts.length > 0){
+                    unlockDoorHelp.style.display = 'block'
+                } else {
+                    unlockDoorHelp.style.display = 'none'
+                }
+            } else {
+                unlockDoorHelp.style.display = 'none'
+            }
+        }
+    } else {
+        unlockDoorHelp.style.display = 'none'
     }
 
     // fps stuff
@@ -428,10 +465,11 @@ document.addEventListener("keydown", (event) => {
             enterSneak()
             break;
         case 'f':
-            console.log(camera.position)
+            unlockDoor()
             break;
         case 'g':
-            genLightning()
+            // genLightning()
+            raycastTesting()
             break;
         case 'e':
             raycastItem()
