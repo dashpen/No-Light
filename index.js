@@ -216,6 +216,12 @@ function pickupPliers(){
 let lightBolts = []
 function genLightning(outside){
 
+    const audioTrack = Math.floor(Math.random() * 4)
+    const tracks = ['strike1', 'strike2', 'strike3', 'strike4']
+
+    const audio = new Audio(`audio/${tracks[audioTrack]}.mp3`);
+    audio.play();
+
     const lightBolt = new THREE.PointLight(0xffffff, 100, 100)
 
     let randPosX = Math.random() * 14 + 4
