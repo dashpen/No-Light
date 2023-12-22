@@ -11,6 +11,9 @@ let movingBackward = false
 let movingLeft = false
 let movingRight = false
 
+let windowWidth = window.innerWidth
+let windowHeight = window.innerHeight
+
 const vel = new THREE.Vector3()
 const direction = new THREE.Vector3()
 const vertex = new THREE.Vector3()
@@ -19,13 +22,16 @@ const color = new THREE.Color()
 const objects = []
 
 let scene = new THREE.Scene()
-const canvas = document.getElementById("canvas")
-let renderer = new THREE.WebGLRenderer({
-    canvas,
-    // alpha: true,
-    // antialias:true
-});
-let camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.05, 100) // perspective camera
+// const canvas = document.getElementById("canvas")
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize( windowWidth, windowHeight );
+document.body.appendChild( renderer.domElement );
+// let renderer = new THREE.WebGLRenderer({
+//     canvas,
+//     // alpha: true,
+//     // antialias:true
+// });
+let camera = new THREE.PerspectiveCamera(75, windowWidth / windowHeight, 0.05, 100) // perspective camera
 
 camera.position.y = startingCameraHeight
 
@@ -39,20 +45,24 @@ floor.rotateX(-Math.PI/2)
 
 scene.add(floor)
 
-// const boxGeo = new THREE.BoxGeometry(0.01, 0.01, 0.01)
-// const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
-// const box = new THREE.Mesh(boxGeo, boxMat)
+const boxGeo = new THREE.BoxGeometry(0.01, 0.01, 0.01)
+const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
+const box = new THREE.Mesh(boxGeo, boxMat)
 
-// box.position.y = 0.5
-// box.position.z = 2
+box.position.y = 0.5
+box.position.z = 2
 
-// scene.add(box)
+scene.add(box)
 
 let controls = new PointerLockControls(camera, document.body)
 
 const blocker = document.getElementById("blocker")
 const blockerText = document.getElementById("blockerText")
 const crosshair = document.getElementById("crosshair")
+
+crosshair.width = windowWidth
+crosshair.height = windowHeight
+
 const infoText = document.getElementById("infoText")
 
 blockerText.addEventListener("click", () => {
@@ -220,7 +230,7 @@ function genLightning(outside){
     const tracks = ['strike1', 'strike2', 'strike3', 'strike4']
 
     const audio = new Audio(`audio/${tracks[audioTrack]}.mp3`);
-    audio.play();
+    // audio.play();
 
     const lightBolt = new THREE.PointLight(0xffffff, 100, 100)
 
@@ -549,8 +559,8 @@ document.addEventListener("keydown", (event) => {
             break;
         case 'g':
             // genLightning()
-            // raycastTesting()
-            win()
+            raycastTesting()
+            // win()
             break;
         case 'e':
             raycastItem()
@@ -597,6 +607,25 @@ function exitSneak(){
 let ctx = crosshair.getContext("2d")
 ctx.fillStyle = 'white'
 ctx.beginPath()
-ctx.arc(400, 400, 4, 0, 2 * Math.PI)
+ctx.arc(windowWidth/2, windowHeight/2, 4, 0, 2 * Math.PI)
 ctx.fill()
 ctx.stroke()
+
+function onWindowResize() {
+
+    console.log('resize')
+
+    windowWidth = window.innerWidth * 0.9
+    windowHeight = window.innerHeight * 0.9
+
+    crosshair.width = windowWidth
+    crosshair.height = windowHeight
+
+    camera.aspect = windowWidth / windowHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( windowWidth, windowHeight );
+
+}
+
+window.onresize = onWindowResize
