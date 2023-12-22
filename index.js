@@ -45,14 +45,14 @@ floor.rotateX(-Math.PI/2)
 
 scene.add(floor)
 
-const boxGeo = new THREE.BoxGeometry(0.01, 0.01, 0.01)
-const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
-const box = new THREE.Mesh(boxGeo, boxMat)
+// const boxGeo = new THREE.BoxGeometry(0.01, 0.01, 0.01)
+// const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
+// const box = new THREE.Mesh(boxGeo, boxMat)
 
-box.position.y = 0.5
-box.position.z = 2
+// box.position.y = 0.5
+// box.position.z = 2
 
-scene.add(box)
+// scene.add(box)
 
 let controls = new PointerLockControls(camera, document.body)
 
@@ -88,8 +88,8 @@ controls.addEventListener("unlock", () => {
 
 scene.add(controls.getObject())
 
-// const ambientLight = new THREE.AmbientLight(0xffffff, 0.001)
-const ambientLight = new THREE.AmbientLight(0xffffff)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.001)
+// const ambientLight = new THREE.AmbientLight(0xffffff)
 
 scene.add(ambientLight)
 
@@ -103,14 +103,14 @@ const loader = new GLTFLoader()
 
 const loadedObjs = []
 let loaded = 0
-
+let hasWonYet = false
 function loadModel(name){
     loader.load(`models/${name}.glb`, (gltf) => {
         scene.add(gltf.scene)
-        // console.log(gltf.scene)
         loadedObjs.push(gltf.scene)
         loaded++
         if(loaded === 4){
+            loaded = 0
             init()
         }
     },
@@ -230,7 +230,7 @@ function genLightning(outside){
     const tracks = ['strike1', 'strike2', 'strike3', 'strike4']
 
     const audio = new Audio(`audio/${tracks[audioTrack]}.mp3`);
-    // audio.play();
+    audio.play();
 
     const lightBolt = new THREE.PointLight(0xffffff, 100, 100)
 
@@ -263,6 +263,12 @@ function dimBolts(){
 
 function craft(){
     if(lightBolts.length > 0 && inventory.length == 2){
+        paperclip.rotateY(-0.3)
+        // paperclip.rotateZ(-Math.PI/2)
+        paperclip.rotateY(Math.PI/2)
+        pliers.rotateZ(0.3)
+        // pliers.rotateY(-Math.PI/2)
+        pliers.rotateZ(-Math.PI/2)
         camera.remove(pliers)
         camera.remove(paperclip)
         hasLockPick = true
@@ -300,6 +306,7 @@ let startTime = 0
 function win(){
     // controls.unlock()
     hasWon = true
+    hasWonYet = true
     sessionTime = (Date.now() - startTime)/1000
     document.exitPointerLock()
     if(bestTime){
@@ -322,15 +329,36 @@ winscreen.onclick = () => {
     hasOpenedDoor = false
     hasWon = false
 
+
+
+    scene.add(pliers)
+    scene.add(paperclip)
+    scene.add(door)
+
+    console.log(paperclip)
+
+    // pliers.rotation._x = 0
+    // pliers.rotation._y = 1.2587250459359334
+    // pliers.rotation._z = 0
+
+    // paperclip.rotation._x = -1.570796461153735
+    // paperclip.rotation._y = 0
+    // paperclip.rotation._z = 0.6388592249955947
+    
+
     placeObject(pliers)
     placeObject(paperclip)
+
+    // scene.add(pliers)
+    // scene.add(paperclip)
+    // scene.add(door)
 
     lightBolts = []
 
     winscreen.style.display = 'none'
 
     scene.children.forEach((el, i) => {
-        if(i > 6){
+        if(el.type == "PointLight"){
             scene.remove(el)
             el.remove()
         }
@@ -367,6 +395,7 @@ function init(){
     paperclip = loadedObjs[1].children[0] 
     room = loadedObjs[2]
     door = loadedObjs[3]
+
 
     paperclip.material = pliers.material
 
@@ -510,10 +539,10 @@ function move(){
         position.z = -2.05
     }
     // wall with door
-    if(position.x > 1.45 && position.z < -2.05){
+    if(position.x > 1.45 && position.z < -2.05 && position.z > -2.15){
         position.z = -2.05
     }
-    if(position.x < 0.56 && position.z < -2.05){
+    if(position.x < 0.56 && position.z < -2.05 && position.z > -2.15){
         position.z = -2.05
     }
     // table
@@ -559,8 +588,9 @@ document.addEventListener("keydown", (event) => {
             break;
         case 'g':
             // genLightning()
-            raycastTesting()
+            // raycastTesting()
             // win()
+            // console.log(paperclip)
             break;
         case 'e':
             raycastItem()
