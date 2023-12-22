@@ -40,14 +40,14 @@ floor.rotateX(-Math.PI/2)
 
 scene.add(floor)
 
-// const boxGeo = new THREE.BoxGeometry(0.01, 0.01, 0.01)
-// const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
-// const box = new THREE.Mesh(boxGeo, boxMat)
+const boxGeo = new THREE.BoxGeometry(0.01, 0.01, 0.01)
+const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
+const box = new THREE.Mesh(boxGeo, boxMat)
 
-// box.position.y = 0.5
-// box.position.z = 2
+box.position.y = 0.5
+box.position.z = 2
 
-// scene.add(box)
+scene.add(box)
 
 let controls = new PointerLockControls(camera, document.body)
 
@@ -265,6 +265,7 @@ function unlockDoor(){
                 if(camera.position.z < -1 && lightBolts.length > 0){
                     scene.remove(door)
                     hasLockPick = false
+                    hasOpenedDoor = true
                 }
             }
         }
@@ -280,6 +281,7 @@ let door
 
 let inventory = []
 let hasLockPick = false
+let hasOpenedDoor = false
 
 const lockpickHelp = document.getElementById("lockpickHelp")
 const unlockDoorHelp = document.getElementById("unlockDoorHelp")
@@ -418,6 +420,9 @@ function move(){
     }
     if(position.z > 2.05){
         position.z = 2.05
+    }
+    if(!hasOpenedDoor && position.z < -2.05){
+        position.z = -2.05
     }
     // wall with door
     if(position.x > 1.45 && position.z < -2.05){
