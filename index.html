@@ -13,6 +13,12 @@
                 display:none;
                 position:absolute;
             }
+            #infoText{
+                height:800; 
+                width: 800; 
+                display:none;
+                position:absolute;
+            }
             #blockerText{
                 height: 800; 
                 width: 800;
@@ -28,6 +34,13 @@
 				font-size: 14px;
 				cursor: pointer;
             }
+            .helpText{
+                text-align: center; 
+                color: white; 
+                height:33%; 
+                font-size: 7.5cqh;
+                display: none;
+            }
         </style>
     </head>
     <body>
@@ -37,6 +50,14 @@
             </div>
         </div>
         <canvas id="crosshair" height="800" width="800"></canvas>
+        <div id="infoText">
+            <div style="height:70%"></div>
+            <div style="height: 30%; container-type:size">
+                <p id="lockpickHelp" class="helpText">Press 'C' to craft a lockpick!</p>
+                <p id="unlockDoorHelp" class="helpText">Press 'f' to unlock the door!</p>
+                <p id="lockedDoorHelp" class="helpText">You got a lockpick!</p>
+            </div>
+        </div>
         <canvas id="canvas" height="800" width="800"></canvas>
     </body>
     <script type="importmap">

@@ -54,6 +54,7 @@ let controls = new PointerLockControls(camera, document.body)
 const blocker = document.getElementById("blocker")
 const blockerText = document.getElementById("blockerText")
 const crosshair = document.getElementById("crosshair")
+const infoText = document.getElementById("infoText")
 
 blockerText.addEventListener("click", () => {
     controls.lock()
@@ -63,16 +64,19 @@ controls.addEventListener('lock', () => {
     blocker.style.display = "none"
     blockerText.style.display = "none"
     crosshair.style.display = "block"
+    infoText.style.display = "block"
 })
 controls.addEventListener("unlock", () => {
     blocker.style.display = "block"
     blockerText.style.display = ""
     crosshair.style.display = "none"
+    infoText.style.display = "none"
 })
 
 scene.add(controls.getObject())
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.001)
+// const ambientLight = new THREE.AmbientLight(0xffffff, 0.001)
+const ambientLight = new THREE.AmbientLight(0xffffff)
 
 scene.add(ambientLight)
 
@@ -234,7 +238,20 @@ function dimBolts(){
         if(lightBolts[i].intensity < 6){
             scene.remove(lightBolts[i])
             lightBolts[i].dispose()
+            lightBolts.shift()
         }
+    }
+}
+
+function craft(){
+    if(lightBolts.length > 0 && inventory.length == 2){
+        camera.remove(pliers)
+        camera.remove(paperclip)
+        hasLockPick = true
+        lockpickHelp.style.display = 'none'
+        lockedDoorHelp.style.display = 'block'
+        setTimeout(() => {lockedDoorHelp.style.display = 'none'}, 1000)
+        inventory = []
     }
 }
 
@@ -245,21 +262,26 @@ let paperclip
 let room
 
 let inventory = []
+let hasLockPick = false
+
+const lockpickHelp = document.getElementById("lockpickHelp")
+const unlockDoorHelp = document.getElementById("unlockDoorHelp")
+const lockedDoorHelp = document.getElementById("lockedDoorHelp")
 
 function init(){
     pliers = loadedObjs[0].children[0] 
     paperclip = loadedObjs[1].children[0] 
     room = loadedObjs[2]
+    door = loadedObjs[3]
 
     paperclip.material = pliers.material
 
-    paperclip.scale.x *= 2
-    paperclip.scale.y *= 2
-    paperclip.scale.z *= 2
+    paperclip.scale.x *= 4
+    paperclip.scale.y *= 4
+    paperclip.scale.z *= 4
 
     placeObject(pliers)
     placeObject(paperclip)
-
 
 
     // for(let i = 0; i < room.children.length; i++){
@@ -295,8 +317,27 @@ function render(time){
 
     dimBolts()
 
+    // 1/120 chance per frame for lightning bolt
+    if(Math.random() < 1/120){
+        let pliersInInv = false
+        let paperclipInInv = false
+        inventory.forEach((el) => {
+            if(el === pliers) pliersInInv = true
+            if(el === paperclip) paperclipInInv = true
+        })
 
+        if(!paperclipInInv) placeObject(paperclip)
+        if(!pliersInInv) placeObject(pliers)
 
+        genLightning()
+    }
+
+    // checking for ability to craft lockpick (needs both items and light)
+    if(inventory.length == 2 && lightBolts.length > 0){
+        lockpickHelp.style.display = 'block'
+    } else {
+        lockpickHelp.style.display = 'none'
+    }
 
     // fps stuff
     renderer.render(scene, camera)
@@ -386,6 +427,17 @@ document.addEventListener("keydown", (event) => {
         case 'shift':
             enterSneak()
             break;
+        case 'f':
+            console.log(camera.position)
+            break;
+        case 'g':
+            genLightning()
+            break;
+        case 'e':
+            raycastItem()
+            break;
+        case 'c':
+            craft()
     } 
 })
 
@@ -408,15 +460,6 @@ document.addEventListener("keyup", (event) => {
             break;
         case 'shift':
             exitSneak()
-            break;
-        case 'f':
-            console.log(camera.position)
-            break;
-        case 'g':
-            genLightning()
-            break;
-        case 'e':
-            raycastItem()
             break;
     } 
 })
