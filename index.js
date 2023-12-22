@@ -40,14 +40,14 @@ floor.rotateX(-Math.PI/2)
 
 scene.add(floor)
 
-const boxGeo = new THREE.BoxGeometry(0.01, 0.01, 0.01)
-const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
-const box = new THREE.Mesh(boxGeo, boxMat)
+// const boxGeo = new THREE.BoxGeometry(0.01, 0.01, 0.01)
+// const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
+// const box = new THREE.Mesh(boxGeo, boxMat)
 
-box.position.y = 0.5
-box.position.z = 2
+// box.position.y = 0.5
+// box.position.z = 2
 
-scene.add(box)
+// scene.add(box)
 
 let controls = new PointerLockControls(camera, document.body)
 
@@ -72,9 +72,11 @@ controls.addEventListener("unlock", () => {
 
 scene.add(controls.getObject())
 
-const ambientLight = new THREE.AmbientLight(0xffffff)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.001)
 
 scene.add(ambientLight)
+
+
 
 const raycaster = new THREE.Raycaster()
 
@@ -207,6 +209,35 @@ function pickupPliers(){
     console.log(inventory)
 }
 
+let lightBolts = []
+function genLightning(){
+
+    const lightBolt = new THREE.PointLight(0xffffff, 100, 100)
+
+    let randPosX = Math.random() * 14 + 4
+    randPosX *= Math.random() > 0.5 ? -1 : 1
+
+    let randPosY = Math.random() * 14 + 4
+    randPosY *= Math.random() > 0.5 ? -1 : 1
+    
+
+    lightBolt.position.set(randPosX, 3, randPosY)
+    scene.add(lightBolt)
+
+    lightBolts.push(lightBolt)
+
+}
+
+function dimBolts(){
+    for(let i = 0; i < lightBolts.length; i++){
+        lightBolts[i].intensity /= 1.07
+        if(lightBolts[i].intensity < 6){
+            scene.remove(lightBolts[i])
+            lightBolts[i].dispose()
+        }
+    }
+}
+
 renderer.render(scene, camera)
 
 let pliers
@@ -262,7 +293,7 @@ function render(time){
 
     }
 
-
+    dimBolts()
 
 
 
@@ -382,7 +413,7 @@ document.addEventListener("keyup", (event) => {
             console.log(camera.position)
             break;
         case 'g':
-            raycastTesting()
+            genLightning()
             break;
         case 'e':
             raycastItem()
