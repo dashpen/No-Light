@@ -34,6 +34,24 @@
 				font-size: 14px;
 				cursor: pointer;
             }
+            #winscreen{
+                height:800; 
+                width: 800; 
+
+                display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+
+                color:white;
+
+                display:none;
+                position:absolute;
+
+                text-align: center;
+                font-size: 24px;
+				cursor: pointer;
+            }
             .helpText{
                 text-align: center; 
                 color: white; 
@@ -48,10 +66,20 @@
             <div id="blockerText">
                 <p>Paused</p>
             </div>
+
+        </div>
+        <div id="winscreen">
+            <p>You Died!</p>
+            <br>
+            <p>play again?</p>
+            <br>
+            <p id="time">Your Time Was</p>
         </div>
         <canvas id="crosshair" height="800" width="800"></canvas>
         <div id="infoText">
-            <div style="height:70%"></div>
+            <div style="height:70%">
+
+            </div>
             <div style="height: 30%; container-type:size">
                 <p id="lockpickHelp" class="helpText">Press 'C' to craft a lockpick!</p>
                 <p id="unlockDoorHelp" class="helpText">Press 'f' to unlock the door!</p>

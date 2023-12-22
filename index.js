@@ -29,7 +29,6 @@ let camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.05,
 
 camera.position.y = startingCameraHeight
 
-camera.lookAt(0,0,0)
 scene.add(camera)
 
 const floorGeo = new THREE.PlaneGeometry(1000, 1000)
@@ -40,14 +39,14 @@ floor.rotateX(-Math.PI/2)
 
 scene.add(floor)
 
-const boxGeo = new THREE.BoxGeometry(0.01, 0.01, 0.01)
-const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
-const box = new THREE.Mesh(boxGeo, boxMat)
+// const boxGeo = new THREE.BoxGeometry(0.01, 0.01, 0.01)
+// const boxMat = new THREE.MeshBasicMaterial({color: 0xff0000})
+// const box = new THREE.Mesh(boxGeo, boxMat)
 
-box.position.y = 0.5
-box.position.z = 2
+// box.position.y = 0.5
+// box.position.z = 2
 
-scene.add(box)
+// scene.add(box)
 
 let controls = new PointerLockControls(camera, document.body)
 
@@ -71,6 +70,10 @@ controls.addEventListener("unlock", () => {
     blockerText.style.display = ""
     crosshair.style.display = "none"
     infoText.style.display = "none"
+    if(hasWon){
+        blockerText.style.display = "none"
+        winscreen.style.display = "block"
+    }
 })
 
 scene.add(controls.getObject())
@@ -87,9 +90,6 @@ const raycaster = new THREE.Raycaster()
 
 const loader = new GLTFLoader()
 
-let paperclipMesh = new THREE.Mesh()
-
-const numModels = 3
 
 const loadedObjs = []
 let loaded = 0
@@ -214,7 +214,7 @@ function pickupPliers(){
 }
 
 let lightBolts = []
-function genLightning(){
+function genLightning(outside){
 
     const lightBolt = new THREE.PointLight(0xffffff, 100, 100)
 
@@ -224,7 +224,9 @@ function genLightning(){
     let randPosY = Math.random() * 14 + 4
     randPosY *= Math.random() > 0.5 ? -1 : 1
     
-
+    if(outside){
+        lightBolt.position.set(camera.position.x, camera.position.y, camera.position.z)
+    }
     lightBolt.position.set(randPosX, 3, randPosY)
     scene.add(lightBolt)
 
@@ -237,8 +239,8 @@ function dimBolts(){
         lightBolts[i].intensity /= 1.07
         if(lightBolts[i].intensity < 6){
             scene.remove(lightBolts[i])
-            lightBolts[i].dispose()
-            lightBolts.shift()
+            lightBolts[i].remove()
+            lightBolts.splice(i, 1)
         }
     }
 }
@@ -270,6 +272,46 @@ function unlockDoor(){
             }
         }
     }
+}
+
+const winscreen = document.getElementById("winscreen")
+
+let hasWon = false
+function win(){
+    // controls.unlock()
+    hasWon = true
+    document.exitPointerLock()
+    // blockerText.style.display = "none"
+    // winscreen.style.display = 'block'
+
+}
+
+winscreen.onclick = () => {
+    inventory = []
+    hasLockPick = false
+    hasOpenedDoor = false
+    hasWon = false
+
+    placeObject(pliers)
+    placeObject(paperclip)
+
+    lightBolts = []
+
+    winscreen.style.display = 'none'
+
+    scene.children.forEach((el, i) => {
+        if(i > 6){
+            scene.remove(el)
+            el.remove()
+        }
+    })
+
+    camera.position.set(0,startingCameraHeight,0)
+    camera.lookAt(0, startingCameraHeight, -1)
+
+    controls.lock()
+
+    render()
 }
 
 renderer.render(scene, camera)
@@ -323,6 +365,7 @@ let start
 let vx = 0
 let vz = 0
 function render(time){
+
     if(start === -1){
         start = Date.now()
     }
@@ -332,51 +375,60 @@ function render(time){
 
         move()
 
-    }
+        dimBolts()
 
-    dimBolts()
-
-    // 1/120 chance per frame for lightning bolt
-    if(Math.random() < 1/120){
-        let pliersInInv = false
-        let paperclipInInv = false
-        inventory.forEach((el) => {
-            if(el === pliers) pliersInInv = true
-            if(el === paperclip) paperclipInInv = true
-        })
-
-        if(!paperclipInInv) placeObject(paperclip)
-        if(!pliersInInv) placeObject(pliers)
-
-        genLightning()
-    }
-
-    // checking for ability to craft lockpick (needs both items and light)
-    if(inventory.length == 2 && lightBolts.length > 0){
-        lockpickHelp.style.display = 'block'
-    } else {
-        lockpickHelp.style.display = 'none'
-    }
-
-    if(hasLockPick){
-        raycaster.setFromCamera({x: 0, y: 0}, camera)
-        const intersectedObjects = raycaster.intersectObject(scene)
-        if(intersectedObjects){
-            const obj = intersectedObjects[0].object
-            if(obj == door.children[0] || obj == door.children[1] || obj == door.children[2]){
-                console.log(" HAPP Y")
-                if(camera.position.z < -1 && lightBolts.length > 0){
-                    unlockDoorHelp.style.display = 'block'
+        // 1/120 chance per frame for lightning bolt
+        if(Math.random() < 1/120){
+            let pliersInInv = false
+            let paperclipInInv = false
+            inventory.forEach((el) => {
+                if(el === pliers) pliersInInv = true
+                if(el === paperclip) paperclipInInv = true
+            })
+    
+            if(!paperclipInInv) placeObject(paperclip)
+            if(!pliersInInv) placeObject(pliers)
+    
+            if(hasOpenedDoor && camera.position.z < -2.2){
+                genLightning(true)
+                win()
+                return
+            }
+            genLightning()
+    
+            
+        }
+    
+        // checking for ability to craft lockpick (needs both items and light)
+        if(inventory.length == 2 && lightBolts.length > 0){
+            lockpickHelp.style.display = 'block'
+        } else {
+            lockpickHelp.style.display = 'none'
+        }
+    
+        if(hasLockPick){
+            raycaster.setFromCamera({x: 0, y: 0}, camera)
+            const intersectedObjects = raycaster.intersectObject(scene)
+            if(intersectedObjects){
+                const obj = intersectedObjects[0].object
+                if(obj == door.children[0] || obj == door.children[1] || obj == door.children[2]){
+                    console.log(" HAPP Y")
+                    if(camera.position.z < -1 && lightBolts.length > 0){
+                        unlockDoorHelp.style.display = 'block'
+                    } else {
+                        unlockDoorHelp.style.display = 'none'
+                    }
                 } else {
                     unlockDoorHelp.style.display = 'none'
                 }
-            } else {
-                unlockDoorHelp.style.display = 'none'
             }
+        } else {
+            unlockDoorHelp.style.display = 'none'
         }
-    } else {
-        unlockDoorHelp.style.display = 'none'
+
     }
+
+    
 
     // fps stuff
     renderer.render(scene, camera)
@@ -384,7 +436,7 @@ function render(time){
     time2 = time
     const elapsed = Date.now() - start
     start = -1
-    setTimeout(requestAnimationFrame, 1000/frameRate - elapsed, render)
+    if(!hasWon) setTimeout(requestAnimationFrame, 1000/frameRate - elapsed, render)
 }
 
 
@@ -474,7 +526,8 @@ document.addEventListener("keydown", (event) => {
             break;
         case 'g':
             // genLightning()
-            raycastTesting()
+            // raycastTesting()
+            win()
             break;
         case 'e':
             raycastItem()
