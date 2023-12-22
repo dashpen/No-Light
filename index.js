@@ -94,7 +94,7 @@ function loadModel(name){
         // console.log(gltf.scene)
         loadedObjs.push(gltf.scene)
         loaded++
-        if(loaded === 3){
+        if(loaded === 4){
             init()
         }
     },
@@ -111,6 +111,7 @@ function loadModel(name){
 loadModel('pliers')
 loadModel('paperclip')
 loadModel('roomproto')
+loadModel('door')
 
 /* corners : 
     x: 0.28  z: -1.15
