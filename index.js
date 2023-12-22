@@ -53,6 +53,7 @@ let controls = new PointerLockControls(camera, document.body)
 
 const blocker = document.getElementById("blocker")
 const blockerText = document.getElementById("blockerText")
+const crosshair = document.getElementById("crosshair")
 
 blockerText.addEventListener("click", () => {
     controls.lock()
@@ -61,10 +62,12 @@ blockerText.addEventListener("click", () => {
 controls.addEventListener('lock', () => {
     blocker.style.display = "none"
     blockerText.style.display = "none"
+    crosshair.style.display = "block"
 })
 controls.addEventListener("unlock", () => {
     blocker.style.display = "block"
     blockerText.style.display = ""
+    crosshair.style.display = "none"
 })
 
 scene.add(controls.getObject())
@@ -140,7 +143,7 @@ function placeObject(object, height){
 
 }
 
-function raycast(){
+function raycastTesting(){
     raycaster.setFromCamera({x: 0, y: 0}, camera)
     const intersectedObjects = raycaster.intersectObject(scene)
     if(intersectedObjects){
@@ -154,6 +157,31 @@ function raycast(){
     }
 }
 
+let paperclipuuid
+let pliersuuid
+
+function raycastItem(){
+    raycaster.setFromCamera({x: 0, y: 0}, camera)
+    const intersectedObjects = raycaster.intersectObject(scene)
+    if(intersectedObjects){
+        const firstObject = intersectedObjects[0].object
+        console.log(firstObject)
+        if(firstObject.uuid == paperclipuuid){
+            pickupPaperclip()
+        } else if(firstObject.uuid == pliersuuid){
+            pickupPliers()
+        }
+    }
+}
+
+function pickupPaperclip(){
+    console.log("You picked up the paperclip!")
+}
+
+function pickupPliers(){
+    console.log("You picked up the pliers!")
+}
+
 renderer.render(scene, camera)
 
 function init(){
@@ -161,14 +189,18 @@ function init(){
     const paperclip = loadedObjs[1].children[0] 
     const room = loadedObjs[2]
 
+    pliersuuid = pliers.uuid
+    paperclipuuid = paperclip.uuid
+
+    // console.log(pliersuuid)
+    // console.log(paperclip)
+
     paperclip.scale.x *= 2
     paperclip.scale.y *= 2
     paperclip.scale.z *= 2
 
     placeObject(pliers, 0.011315741299757653)
     placeObject(paperclip, 0.0050254474666067805)
-
-    console.log(paperclip)
 
 
 
@@ -323,7 +355,10 @@ document.addEventListener("keyup", (event) => {
             console.log(camera.position)
             break;
         case 'g':
-            raycast()
+            raycastTesting()
+            break;
+        case 'e':
+            raycastItem()
             break;
     } 
 })
@@ -337,3 +372,11 @@ function exitSneak(){
     camera.position.y = startingCameraHeight
     runSpeed = startingRunSpeed
 }
+
+// crosshair code
+let ctx = crosshair.getContext("2d")
+ctx.fillStyle = 'white'
+ctx.beginPath()
+ctx.arc(400, 400, 4, 0, 2 * Math.PI)
+ctx.fill()
+ctx.stroke()

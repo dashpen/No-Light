@@ -7,6 +7,12 @@
                 position:absolute;
                 background-color: rgba(0,0,0,0.5);
             }
+            #crosshair{
+                height:800; 
+                width: 800; 
+                display:none;
+                position:absolute;
+            }
             #blockerText{
                 height: 800; 
                 width: 800;
@@ -30,6 +36,7 @@
                 <p>Paused</p>
             </div>
         </div>
+        <canvas id="crosshair" height="800" width="800"></canvas>
         <canvas id="canvas" height="800" width="800"></canvas>
     </body>
     <script type="importmap">
